@@ -171,7 +171,8 @@
                     $firstImg = count($candidate->images ?? []) ? $candidate->images[0] : null;
                 @endphp
                 <div class="list-item candidate-item" data-id="{{ $candidate->id }}"
-                     data-status-url="{{ route('procurements.candidates.status', [$procurement, $candidate]) }}">
+                     data-status-url="{{ route('procurements.candidates.status', [$procurement, $candidate]) }}"
+                     onclick="window.location='{{ route('procurements.candidates.show', [$procurement, $candidate]) }}'">
                     
                     {{-- Thumbnail --}}
                     @if($firstImg)
@@ -186,9 +187,7 @@
 
                     <div class="list-item-body">
                         <div class="list-item-title">
-                            <a href="{{ route('procurements.candidates.show', [$procurement, $candidate]) }}" style="color: var(--text);" class="hover-underline">
-                                {{ $candidate->name }}
-                            </a>
+                            {{ $candidate->name }}
                         </div>
                         <div class="list-item-meta">
                             <span class="badge {{ $cs['class'] }} candidate-status-badge" data-id="{{ $candidate->id }}">
@@ -215,17 +214,14 @@
                     </div>
 
                     <div class="list-item-actions">
-                        <a href="{{ route('procurements.candidates.show', [$procurement, $candidate]) }}" class="btn btn-secondary btn-sm">
-                            Detail AI
-                        </a>
                         @if($candidate->ai_status === 'failed')
                             <button type="button" class="btn btn-secondary btn-sm btn-reanalyze"
                                     data-url="{{ route('procurements.candidates.reanalyze', [$procurement, $candidate]) }}"
-                                    data-id="{{ $candidate->id }}" title="Ulangi Analisis">
+                                    data-id="{{ $candidate->id }}" title="Ulangi Analisis" onclick="event.stopPropagation()">
                                 ↺ Ulangi
                             </button>
                         @endif
-                        <button type="button" class="btn btn-danger btn-sm" title="Hapus Kandidat" onclick="confirmDeleteCandidate('{{ $candidate->id }}', '{{ addslashes($candidate->name) }}')">
+                        <button type="button" class="btn btn-danger btn-sm" title="Hapus Kandidat" onclick="event.stopPropagation(); confirmDeleteCandidate('{{ $candidate->id }}', '{{ addslashes($candidate->name) }}')">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         </button>
                         <form id="del-cand-form-{{ $candidate->id }}" method="POST" action="{{ route('procurements.candidates.destroy', [$procurement, $candidate]) }}" style="display:none;">
@@ -354,6 +350,17 @@
 
 .btn-add-square:active {
     transform: scale(0.96);
+}
+
+.candidate-item {
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.candidate-item:hover {
+    border-color: #CBD5E1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
 }
 
 .top-candidate-card {
