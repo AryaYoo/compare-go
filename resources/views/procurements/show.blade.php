@@ -213,7 +213,7 @@
                         </div>
                     </div>
 
-                    <div class="list-item-actions">
+                    <div class="list-item-actions" style="align-self: center;">
                         @if($candidate->ai_status === 'failed')
                             <button type="button" class="btn btn-secondary btn-sm btn-reanalyze"
                                     data-url="{{ route('procurements.candidates.reanalyze', [$procurement, $candidate]) }}"
@@ -355,6 +355,7 @@
 .candidate-item {
     cursor: pointer;
     transition: all 0.15s ease-in-out;
+    align-items: center !important;
 }
 
 .candidate-item:hover {
