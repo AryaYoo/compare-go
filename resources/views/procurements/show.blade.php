@@ -79,30 +79,6 @@
 
         <div class="card-body" style="padding: 0;">
 
-            {{-- Add/Edit Inline Form --}}
-            <div id="criterion-form-wrap" class="criterion-form-wrap" style="display: none;">
-                <div class="criterion-form-grid">
-                    <div>
-                        <label class="form-label">Nama Kriteria <span class="required">*</span></label>
-                        <input type="text" id="cf-name" class="form-input" placeholder="cth: CPU / RAM / SSD / Layar">
-                    </div>
-                    <div>
-                        <label class="form-label">Target / Spesifikasi Minimal <span class="required">*</span></label>
-                        <input type="text" id="cf-target" class="form-input" placeholder="cth: Min. Intel Core i5 Gen 12 / 16GB">
-                    </div>
-                    <div>
-                        <label class="form-label">Bobot (%) <span class="required">*</span></label>
-                        <input type="number" id="cf-weight" class="form-input" placeholder="25" min="1" max="100">
-                    </div>
-                    <div class="criterion-form-actions">
-                        <button type="button" class="btn btn-primary btn-sm" id="cf-save">Simpan</button>
-                        <button type="button" class="btn btn-ghost btn-sm" id="cf-cancel">Batal</button>
-                    </div>
-                </div>
-                <div id="cf-error" style="color: var(--danger); font-size: 11.5px; margin-top: 6px; display: none;"></div>
-                <input type="hidden" id="cf-editing-id">
-            </div>
-
             {{-- Criteria List --}}
             <div id="criteria-list">
                 @forelse($procurement->criteria as $criterion)
@@ -135,6 +111,75 @@
                 @endforelse
             </div>
         </div>
+    </div>
+</div>
+
+{{-- Modal Pop-up Tambah / Edit Kriteria --}}
+<div id="criterion-modal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-criterion-title">
+    <div class="modal-container">
+        {{-- Modal Header --}}
+        <div class="modal-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="modal-icon-badge">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"></path>
+                        <path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"></path>
+                        <path d="M7 21h10"></path>
+                        <path d="M12 3v18"></path>
+                        <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
+                    </svg>
+                </div>
+                <h3 class="modal-title" id="modal-criterion-title">Tambah Kriteria Penilaian</h3>
+            </div>
+            <button type="button" class="modal-close-btn" id="modal-criterion-close" title="Tutup">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        {{-- Modal Form --}}
+        <form id="criterion-modal-form" onsubmit="return false;">
+            <div class="modal-body">
+                <div id="cf-error" class="modal-error-alert" style="display: none;"></div>
+                <input type="hidden" id="cf-editing-id">
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label" for="cf-name" style="font-weight: 600; font-size: 13px;">Nama Kriteria <span class="required" style="color: var(--danger);">*</span></label>
+                    <input type="text" id="cf-name" class="form-input" placeholder="cth: Generasi Prosesor & Chipset" style="width: 100%; box-sizing: border-box;" required>
+                    <span style="font-size: 11.5px; color: var(--muted); margin-top: 4px; display: block;">Aspek atau komponen utama produk yang dinilai.</span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label" for="cf-target" style="font-weight: 600; font-size: 13px;">Target / Spesifikasi Minimal <span class="required" style="color: var(--danger);">*</span></label>
+                    <textarea id="cf-target" class="form-input" rows="3" placeholder="cth: Intel Core i3 Gen 12/13 atau AMD Ryzen 3 7000 Series (Zen 3+)" style="width: 100%; box-sizing: border-box; resize: vertical; min-height: 72px; font-family: inherit; line-height: 1.45;" required></textarea>
+                    <span style="font-size: 11.5px; color: var(--muted); margin-top: 4px; display: block;">Spesifikasi acuan/kebutuhan minimal pengadaan.</span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 6px;">
+                    <label class="form-label" for="cf-weight" style="font-weight: 600; font-size: 13px;">Bobot Penilaian (%) <span class="required" style="color: var(--danger);">*</span></label>
+                    <div style="position: relative; max-width: 140px;">
+                        <input type="number" id="cf-weight" class="form-input" placeholder="20" min="1" max="100" style="padding-right: 32px;" required>
+                        <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 600; color: var(--muted);">%</span>
+                    </div>
+                    <span style="font-size: 11.5px; color: var(--muted); margin-top: 4px; display: block;">Target akumulasi seluruh kriteria adalah 100%.</span>
+                </div>
+            </div>
+
+            {{-- Modal Footer --}}
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" id="cf-cancel">Batal</button>
+                <button type="button" class="btn btn-primary btn-sm" id="cf-save">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Simpan Kriteria
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -504,21 +549,123 @@
     gap: 10px;
 }
 
-/* Criteria Inline Form */
-.criterion-form-wrap {
-    padding: 16px 18px;
-    border-bottom: 1px solid var(--border);
-    background: #F8FAFC;
-}
-.criterion-form-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 1.8fr 100px auto;
-    gap: 12px;
-    align-items: flex-end;
-}
-.criterion-form-actions {
+/* Modal Pop-up */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9999;
     display: flex;
-    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    animation: modalOverlayFadeIn 0.18s ease-out;
+}
+
+@keyframes modalOverlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-container {
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.18), 0 10px 10px -5px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 500px;
+    overflow: hidden;
+    animation: modalPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPopIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: #FFFFFF;
+}
+
+.modal-icon-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #F0FDFA;
+    border: 1px solid #CCFBF1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0F172A;
+    margin: 0;
+}
+
+.modal-close-btn {
+    background: transparent;
+    border: none;
+    color: #64748B;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.modal-close-btn:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+}
+
+.modal-body {
+    padding: 20px;
+    background: #FFFFFF;
+}
+
+.modal-error-alert {
+    padding: 10px 14px;
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    border-radius: 6px;
+    color: #B91C1C;
+    font-size: 12px;
+    margin-bottom: 14px;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 20px;
+    background: #F8FAFC;
+    border-top: 1px solid var(--border);
 }
 
 /* Criterion Card/Row Redesign */
@@ -657,17 +804,16 @@
         justify-content: center;
         padding: 8px 14px;
     }
-    .criterion-form-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
+    .modal-container {
+        max-width: 100%;
+        margin: 0;
     }
-    .criterion-form-actions {
-        display: flex;
+    .modal-footer {
+        flex-direction: column-reverse;
         gap: 8px;
-        margin-top: 6px;
     }
-    .criterion-form-actions button {
-        flex: 1;
+    .modal-footer button {
+        width: 100%;
         justify-content: center;
         height: 38px;
     }
@@ -721,31 +867,59 @@ if (currentTabHash) {
     }
 }
 
-// Inline Criteria Logic
-const formWrap  = document.getElementById('criterion-form-wrap');
-const cfName    = document.getElementById('cf-name');
-const cfTarget  = document.getElementById('cf-target');
-const cfWeight  = document.getElementById('cf-weight');
-const cfError   = document.getElementById('cf-error');
-const cfId      = document.getElementById('cf-editing-id');
-const cfSave    = document.getElementById('cf-save');
-const cfCancel  = document.getElementById('cf-cancel');
+// Modal Criteria Logic
+const modalEl    = document.getElementById('criterion-modal');
+const modalTitle = document.getElementById('modal-criterion-title');
+const modalClose = document.getElementById('modal-criterion-close');
+const cfName     = document.getElementById('cf-name');
+const cfTarget   = document.getElementById('cf-target');
+const cfWeight   = document.getElementById('cf-weight');
+const cfError    = document.getElementById('cf-error');
+const cfId       = document.getElementById('cf-editing-id');
+const cfSave     = document.getElementById('cf-save');
+const cfCancel   = document.getElementById('cf-cancel');
 const criteriaList = document.getElementById('criteria-list');
 
-function showForm(data = null) {
+function showModal(data = null) {
     cfId.value     = data ? data.id : '';
     cfName.value   = data ? data.name : '';
     cfTarget.value = data ? data.target : '';
     cfWeight.value = data ? data.weight : '';
     cfError.style.display = 'none';
-    formWrap.style.display = 'block';
-    cfName.focus();
+    
+    if (data && data.id) {
+        modalTitle.textContent = 'Edit Kriteria Penilaian';
+    } else {
+        modalTitle.textContent = 'Tambah Kriteria Penilaian';
+    }
+
+    modalEl.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => cfName.focus(), 60);
 }
 
-function hideForm() {
-    formWrap.style.display = 'none';
+function hideModal() {
+    modalEl.style.display = 'none';
+    document.body.style.overflow = '';
     cfId.value = cfName.value = cfTarget.value = cfWeight.value = '';
+    cfError.style.display = 'none';
 }
+
+document.getElementById('btn-add-criterion')?.addEventListener('click', () => showModal());
+cfCancel?.addEventListener('click', hideModal);
+modalClose?.addEventListener('click', hideModal);
+
+modalEl?.addEventListener('click', (e) => {
+    if (e.target === modalEl) {
+        hideModal();
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalEl.style.display === 'flex') {
+        hideModal();
+    }
+});
 
 function updateWeightBadge(total) {
     document.getElementById('weight-total-value').textContent = total;
@@ -796,9 +970,6 @@ function renderCriterionRow(c) {
     return div;
 }
 
-document.getElementById('btn-add-criterion')?.addEventListener('click', () => showForm());
-cfCancel?.addEventListener('click', hideForm);
-
 cfSave?.addEventListener('click', async () => {
     const name   = cfName.value.trim();
     const target = cfTarget.value.trim();
@@ -842,7 +1013,7 @@ cfSave?.addEventListener('click', async () => {
         if (tabCountEl) {
             tabCountEl.textContent = criteriaList.querySelectorAll('.criterion-row').length;
         }
-        hideForm();
+        hideModal();
 
         Swal.fire({
             icon: 'success',
@@ -864,7 +1035,7 @@ criteriaList?.addEventListener('click', async (e) => {
 
     if (editBtn) {
         const row = editBtn.closest('.criterion-row');
-        showForm({ id: row.dataset.id, name: row.dataset.name, target: row.dataset.target, weight: row.dataset.weight });
+        showModal({ id: row.dataset.id, name: row.dataset.name, target: row.dataset.target, weight: row.dataset.weight });
     }
 
     if (delBtn) {
