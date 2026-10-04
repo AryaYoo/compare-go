@@ -59,8 +59,8 @@
 {{-- TAB 1: CRITERIA --}}
 <div class="tab-panel active" id="tab-criteria">
     <div class="card">
-        <div class="card-header">
-            <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="card-header criteria-header-wrap">
+            <div class="criteria-header-left">
                 <span class="card-title">Kriteria Penilaian & Target Pengadaan</span>
                 <span class="weight-total {{ $totalWeight == 100 ? 'ok' : 'not-ok' }}" id="weight-total-badge">
                     Total Bobot: <span id="weight-total-value">{{ $totalWeight }}</span>%
@@ -80,8 +80,8 @@
         <div class="card-body" style="padding: 0;">
 
             {{-- Add/Edit Inline Form --}}
-            <div id="criterion-form-wrap" style="display: none; padding: 14px 18px; border-bottom: 1px solid var(--border); background: var(--sidebar);">
-                <div style="display: grid; grid-template-columns: 1fr 1fr 100px auto; gap: 10px; align-items: flex-end;">
+            <div id="criterion-form-wrap" class="criterion-form-wrap" style="display: none;">
+                <div class="criterion-form-grid">
                     <div>
                         <label class="form-label">Nama Kriteria <span class="required">*</span></label>
                         <input type="text" id="cf-name" class="form-input" placeholder="cth: CPU / RAM / SSD / Layar">
@@ -94,7 +94,7 @@
                         <label class="form-label">Bobot (%) <span class="required">*</span></label>
                         <input type="number" id="cf-weight" class="form-input" placeholder="25" min="1" max="100">
                     </div>
-                    <div style="display: flex; gap: 6px;">
+                    <div class="criterion-form-actions">
                         <button type="button" class="btn btn-primary btn-sm" id="cf-save">Simpan</button>
                         <button type="button" class="btn btn-ghost btn-sm" id="cf-cancel">Batal</button>
                     </div>
@@ -107,20 +107,25 @@
             <div id="criteria-list">
                 @forelse($procurement->criteria as $criterion)
                     <div class="criterion-row" data-id="{{ $criterion->id }}"
-                         data-name="{{ $criterion->name }}" data-target="{{ $criterion->target }}" data-weight="{{ $criterion->weight }}"
-                         style="display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; border-bottom: 1px solid var(--border);">
-                        <div style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;">
-                            <span style="font-weight: 600; font-size: 13px; color: var(--text);">{{ $criterion->name }}</span>
-                            <span style="color: var(--muted); font-size: 12px;">&rarr; Target: <strong style="color: var(--text);">{{ $criterion->target }}</strong></span>
+                         data-name="{{ $criterion->name }}" data-target="{{ $criterion->target }}" data-weight="{{ $criterion->weight }}">
+                        <div class="criterion-top-bar">
+                            <div class="criterion-name-col">
+                                <span class="criterion-bullet"></span>
+                                <span class="criterion-name">{{ $criterion->name }}</span>
+                            </div>
+                            <div class="criterion-actions-col">
+                                <span class="criterion-weight-badge">{{ $criterion->weight }}%</span>
+                                <button type="button" class="btn-criterion-action btn-edit-criterion" title="Edit Kriteria">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </button>
+                                <button type="button" class="btn-criterion-action btn-del-criterion" title="Hapus Kriteria">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="badge badge-gray" style="font-size: 11px;">{{ $criterion->weight }}%</span>
-                            <button type="button" class="btn btn-ghost btn-sm btn-edit-criterion" style="padding: 4px 6px;" title="Edit Kriteria">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm btn-del-criterion" style="padding: 4px 6px;" title="Hapus Kriteria">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            </button>
+                        <div class="criterion-target-box">
+                            <span class="criterion-target-label">Target</span>
+                            <span class="criterion-target-text">{{ $criterion->target }}</span>
                         </div>
                     </div>
                 @empty
@@ -472,6 +477,220 @@
     color: #0D9488;
     transform: translateX(2px);
 }
+
+/* Responsive Tabs scrolling */
+.tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+    display: none;
+}
+
+/* Header Criteria */
+.criteria-header-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 18px;
+}
+.criteria-header-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Criteria Inline Form */
+.criterion-form-wrap {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    background: #F8FAFC;
+}
+.criterion-form-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1.8fr 100px auto;
+    gap: 12px;
+    align-items: flex-end;
+}
+.criterion-form-actions {
+    display: flex;
+    gap: 6px;
+}
+
+/* Criterion Card/Row Redesign */
+.criterion-row {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: #FFFFFF;
+    transition: background-color 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.criterion-row:last-child {
+    border-bottom: none;
+}
+.criterion-row:hover {
+    background-color: #FAFAFA;
+}
+
+.criterion-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.criterion-name-col {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+}
+.criterion-bullet {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #0D9488;
+    flex-shrink: 0;
+}
+.criterion-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0F172A;
+    line-height: 1.35;
+    word-break: break-word;
+}
+.criterion-actions-col {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.criterion-weight-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 12px;
+    background: #F0FDFA;
+    color: #0D9488;
+    border: 1px solid #99F6E4;
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.btn-criterion-action {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: #FFFFFF;
+    padding: 0;
+}
+.btn-criterion-action.btn-edit-criterion {
+    color: #64748B;
+    border: 1px solid #E2E8F0;
+}
+.btn-criterion-action.btn-edit-criterion:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+    border-color: #CBD5E1;
+}
+.btn-criterion-action.btn-del-criterion {
+    color: #EF4444;
+    border: 1px solid #FEE2E2;
+}
+.btn-criterion-action.btn-del-criterion:hover {
+    background: #FEF2F2;
+    color: #DC2626;
+    border-color: #FCA5A5;
+}
+
+.criterion-target-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+.criterion-target-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #475569;
+    background: #E2E8F0;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.criterion-target-text {
+    color: #334155;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+    .criteria-header-wrap {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .criteria-header-left {
+        justify-content: space-between;
+    }
+    #btn-add-criterion {
+        width: 100%;
+        justify-content: center;
+        padding: 8px 14px;
+    }
+    .criterion-form-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .criterion-form-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 6px;
+    }
+    .criterion-form-actions button {
+        flex: 1;
+        justify-content: center;
+        height: 38px;
+    }
+    .criterion-row {
+        padding: 12px 14px;
+    }
+    .criterion-top-bar {
+        align-items: flex-start;
+    }
+    .criterion-target-box {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+    .top-candidate-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .top-candidate-card > div:last-child {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
 </style>
 @endpush
 
@@ -540,6 +759,12 @@ function updateWeightBadge(total) {
     }
 }
 
+function escapeHtml(text) {
+    const p = document.createElement('p');
+    p.textContent = text ?? '';
+    return p.innerHTML;
+}
+
 function renderCriterionRow(c) {
     const div = document.createElement('div');
     div.className = 'criterion-row';
@@ -547,20 +772,25 @@ function renderCriterionRow(c) {
     div.dataset.name   = c.name;
     div.dataset.target = c.target;
     div.dataset.weight = c.weight;
-    div.style = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; border-bottom: 1px solid var(--border);';
     div.innerHTML = `
-        <div style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;">
-            <span style="font-weight: 600; font-size: 13px; color: var(--text);">${c.name}</span>
-            <span style="color: var(--muted); font-size: 12px;">&rarr; Target: <strong style="color: var(--text);">${c.target}</strong></span>
+        <div class="criterion-top-bar">
+            <div class="criterion-name-col">
+                <span class="criterion-bullet"></span>
+                <span class="criterion-name">${escapeHtml(c.name)}</span>
+            </div>
+            <div class="criterion-actions-col">
+                <span class="criterion-weight-badge">${c.weight}%</span>
+                <button type="button" class="btn-criterion-action btn-edit-criterion" title="Edit Kriteria">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button type="button" class="btn-criterion-action btn-del-criterion" title="Hapus Kriteria">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+            </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="badge badge-gray" style="font-size: 11px;">${c.weight}%</span>
-            <button type="button" class="btn btn-ghost btn-sm btn-edit-criterion" style="padding: 4px 6px;" title="Edit Kriteria">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </button>
-            <button type="button" class="btn btn-danger btn-sm btn-del-criterion" style="padding: 4px 6px;" title="Hapus Kriteria">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            </button>
+        <div class="criterion-target-box">
+            <span class="criterion-target-label">Target</span>
+            <span class="criterion-target-text">${escapeHtml(c.target)}</span>
         </div>
     `;
     return div;
