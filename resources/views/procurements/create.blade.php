@@ -3,10 +3,13 @@
 @section('title', 'Buat Pengadaan')
 
 @section('content')
-<div class="page-header">
-    <div style="display: flex; align-items: center; gap: 12px;">
-        <a href="{{ route('procurements.index') }}" class="btn btn-ghost btn-sm" style="padding: 6px; color: var(--muted);" title="Kembali ke Daftar Pengadaan">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+<div class="page-header" style="align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="{{ route('procurements.index') }}" class="btn-back" title="Kembali ke Daftar Pengadaan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
         </a>
         <div>
             <h1 class="page-title">Buat Pengadaan Baru</h1>

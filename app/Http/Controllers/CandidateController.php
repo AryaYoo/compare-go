@@ -50,7 +50,7 @@ class CandidateController extends Controller
         // Dispatch analysis job
         AnalyzeCandidateJob::dispatch($candidate);
 
-        return redirect()->route('procurements.show', $procurement)
+        return redirect()->to(route('procurements.show', $procurement) . '#candidates')
             ->with('success', "Kandidat \"{$candidate->name}\" ditambahkan. AI sedang menganalisis...");
     }
 
@@ -70,7 +70,7 @@ class CandidateController extends Controller
 
         $candidate->delete();
 
-        return redirect()->route('procurements.show', $procurement)
+        return redirect()->to(route('procurements.show', $procurement) . '#candidates')
             ->with('success', 'Kandidat berhasil dihapus.');
     }
 

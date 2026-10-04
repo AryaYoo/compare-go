@@ -3,65 +3,32 @@
 @section('title', 'Daftar Pengadaan')
 
 @section('content')
-<div class="page-header">
+<div class="page-header" style="margin-bottom: 14px;">
     <div>
         <h1 class="page-title">Pengadaan Barang</h1>
         <div class="page-header-sub">{{ $procurements->count() }} pengadaan tercatat dalam sistem</div>
     </div>
-    <div class="page-actions">
-        <a href="{{ route('procurements.create') }}" class="btn btn-primary">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Buat Pengadaan
-        </a>
-    </div>
-</div>
-
-@php
-    $totalProcurements = $procurements->count();
-    $activeProcurements = $procurements->where('status', 'active')->count();
-    $totalCandidates = $procurements->sum('candidates_count');
-    $completedProcurements = $procurements->where('status', 'completed')->count();
-@endphp
-
-{{-- Stat Cards --}}
-<div class="stat-cards">
-    <div class="stat-card stat-card-total">
-        <div class="stat-card-label">Total Pengadaan</div>
-        <div class="stat-card-value">{{ $totalProcurements }}</div>
-    </div>
-    <div class="stat-card stat-card-active">
-        <div class="stat-card-label">Pengadaan Aktif</div>
-        <div class="stat-card-value">{{ $activeProcurements }}</div>
-    </div>
-    <div class="stat-card stat-card-candidates">
-        <div class="stat-card-label">Total Kandidat</div>
-        <div class="stat-card-value">{{ $totalCandidates }}</div>
-    </div>
-    <div class="stat-card stat-card-ready">
-        <div class="stat-card-label">Pengadaan Selesai</div>
-        <div class="stat-card-value">{{ $completedProcurements }}</div>
-    </div>
 </div>
 
 {{-- Action & Search Bar --}}
-<div class="procurements-action-bar">
+<div class="procurements-action-bar" style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+    {{-- Button Buat Pengadaan di sebelah kiri search bar dengan tinggi 36px yang sama persis --}}
+    <a href="{{ route('procurements.create') }}" class="btn-create-procurement">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Buat Pengadaan</span>
+    </a>
+
+    {{-- Search Bar --}}
     <div class="search-input-wrap">
         <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="procurement-search" class="search-input" placeholder="Cari nama pengadaan atau deskripsi..." onkeyup="filterTable()">
         <span id="search-clear" class="search-clear-btn" style="display:none;" onclick="clearSearch()">✕</span>
     </div>
-
-    <div style="display: flex; gap: 6px;">
-        <button type="button" class="btn btn-secondary btn-sm filter-pill active" onclick="setFilterStatus('all', this)">Semua</button>
-        <button type="button" class="btn btn-secondary btn-sm filter-pill" onclick="setFilterStatus('draft', this)">Draft</button>
-        <button type="button" class="btn btn-secondary btn-sm filter-pill" onclick="setFilterStatus('active', this)">Aktif</button>
-        <button type="button" class="btn btn-secondary btn-sm filter-pill" onclick="setFilterStatus('completed', this)">Selesai</button>
-    </div>
 </div>
 
-{{-- Table --}}
-<div class="card">
-    @if($procurements->isEmpty())
+{{-- Card List --}}
+@if($procurements->isEmpty())
+    <div class="card">
         <div class="empty-state">
             <div class="empty-state-icon">📋</div>
             <div class="empty-state-title">Belum ada pengadaan barang</div>
@@ -72,123 +39,325 @@
                 </a>
             </div>
         </div>
-    @else
-        <div class="table-wrap" style="border:none;">
-            <table class="data-table" id="procurements-table">
-                <thead>
-                    <tr>
-                        <th style="width: 35%;">Nama Pengadaan</th>
-                        <th style="width: 12%;">Status</th>
-                        <th style="width: 18%;">Kriteria & Bobot</th>
-                        <th style="width: 12%;">Kandidat</th>
-                        <th style="width: 13%;">Dibuat</th>
-                        <th style="width: 10%; text-align: right;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($procurements as $procurement)
-                        @php
-                            $totalWeight = $procurement->criteria->sum('weight');
-                            $statusMap = [
-                                'draft'     => ['label'=>'Draft',    'class'=>'badge-gray'],
-                                'active'    => ['label'=>'Aktif',    'class'=>'badge-green'],
-                                'completed' => ['label'=>'Selesai',  'class'=>'badge-blue']
-                            ];
-                            $st = $statusMap[$procurement->status] ?? $statusMap['draft'];
-                        @endphp
-                        <tr class="procurement-row" data-status="{{ $procurement->status }}" data-name="{{ strtolower($procurement->name . ' ' . $procurement->description) }}">
-                            <td>
-                                <div>
-                                    <a href="{{ route('procurements.show', $procurement) }}" style="font-weight: 600; color: var(--text);" class="hover-underline">
-                                        {{ $procurement->name }}
-                                    </a>
-                                </div>
-                                @if($procurement->description)
-                                    <div class="text-muted fs-12 mt-4" style="line-height: 1.4;">
-                                        {{ Str::limit($procurement->description, 85) }}
-                                    </div>
-                                @endif
-                            </td>
-                            <td>
-                                <span class="badge {{ $st['class'] }}">{{ $st['label'] }}</span>
-                            </td>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span style="font-weight: 500;">{{ $procurement->criteria->count() }} Kriteria</span>
-                                    @if($totalWeight > 0)
-                                        <span class="weight-total {{ $totalWeight == 100 ? 'ok' : 'not-ok' }}" style="font-size: 10.5px;">
-                                            {{ $totalWeight }}%
-                                        </span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td>
-                                <span style="font-weight: 500;">{{ $procurement->candidates_count }}</span>
-                                <span class="text-muted fs-12">produk</span>
-                            </td>
-                            <td>
-                                <span class="text-muted fs-12" title="{{ $procurement->created_at->format('d M Y H:i') }}">
-                                    {{ $procurement->created_at->diffForHumans() }}
-                                </span>
-                            </td>
-                            <td style="text-align: right;">
-                                <div style="display: flex; gap: 4px; justify-content: flex-end;">
-                                    <a href="{{ route('procurements.show', $procurement) }}" class="btn btn-secondary btn-sm" title="Lihat Evaluasi">
-                                        Detail
-                                    </a>
-                                    <a href="{{ route('procurements.edit', $procurement) }}" class="btn btn-ghost btn-sm" title="Edit Pengadaan">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                    </a>
-                                    <button type="button" class="btn btn-danger btn-sm" title="Hapus Pengadaan" onclick="confirmDelete('{{ $procurement->id }}', '{{ addslashes($procurement->name) }}')">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                    </button>
-                                </div>
-                                <form id="delete-form-{{ $procurement->id }}" method="POST" action="{{ route('procurements.destroy', $procurement) }}" style="display:none;">
-                                    @csrf @method('DELETE')
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-</div>
+    </div>
+@else
+    <div class="procurement-card-list" id="procurement-card-list">
+        @foreach($procurements as $procurement)
+            @php
+                $totalWeight = $procurement->criteria->sum('weight');
+                $code = 'PGD-' . str_pad($procurement->id, 3, '0', STR_PAD_LEFT);
+            @endphp
+            <div class="procurement-card" 
+                 data-status="{{ $procurement->status }}" 
+                 data-name="{{ strtolower($procurement->name . ' ' . $procurement->description . ' ' . $code) }}"
+                 onclick="window.location.href='{{ route('procurements.show', $procurement) }}'"
+                 title="Klik untuk melihat detail & analisis">
+                
+                {{-- Top Line: Code, Badges, and Action buttons on right --}}
+                <div class="procurement-card-header">
+                    <div class="procurement-card-title-wrap">
+                        <span class="procurement-card-code">{{ $code }}</span>
+                        
+                        @if($procurement->status === 'active')
+                            <span class="proc-pill pill-blue">Aktif</span>
+                        @elseif($procurement->status === 'completed')
+                            <span class="proc-pill pill-green">Selesai</span>
+                        @else
+                            <span class="proc-pill pill-gray">Draft</span>
+                        @endif
+
+                        <span class="proc-pill pill-purple">{{ $procurement->candidates_count }} Kandidat</span>
+                        <span class="proc-pill pill-teal">{{ $procurement->criteria->count() }} Kriteria</span>
+                    </div>
+
+                    {{-- Edit & Delete action icons (Detail button is removed, card is clickable) --}}
+                    <div class="procurement-card-actions" onclick="event.stopPropagation()">
+                        <a href="{{ route('procurements.edit', $procurement) }}" 
+                           class="card-action-btn action-edit" 
+                           title="Edit Pengadaan">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </a>
+                        <button type="button" 
+                                class="card-action-btn action-delete" 
+                                title="Hapus Pengadaan"
+                                onclick="confirmDelete('{{ $procurement->id }}', '{{ addslashes($procurement->name) }}')">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form id="delete-form-{{ $procurement->id }}" method="POST" action="{{ route('procurements.destroy', $procurement) }}" style="display:none;">
+                        @csrf @method('DELETE')
+                    </form>
+                </div>
+
+                {{-- Middle Line: Title and Description --}}
+                <div class="procurement-card-body">
+                    <span class="procurement-main-title">{{ $procurement->name }}</span>
+                    @if($procurement->description)
+                        <span class="procurement-main-desc">&mdash; {{ Str::limit($procurement->description, 110) }}</span>
+                    @endif
+                </div>
+
+                {{-- Bottom Line: PIC, Created Date --}}
+                <div class="procurement-card-footer">
+                    <span>PIC: <strong>{{ auth()->user()->name ?? 'Staff IT' }}</strong></span>
+                    <span class="meta-dot">|</span>
+                    <span>Dibuat: {{ $procurement->created_at->format('d/m/Y H:i') }}</span>
+                    @if($totalWeight > 0)
+                        <span class="meta-dot">|</span>
+                        <span>Bobot Kriteria: {{ $totalWeight }}%</span>
+                    @endif
+                </div>
+
+            </div>
+        @endforeach
+    </div>
+
+    {{-- Empty search result state --}}
+    <div id="no-search-results" class="card" style="display:none; text-align:center; padding: 36px 20px;">
+        <div style="font-size: 26px; margin-bottom: 6px;">🔍</div>
+        <div style="font-weight: 600; color: #1E293B; margin-bottom: 4px;">Tidak ada pengadaan ditemukan</div>
+        <div style="font-size: 13px; color: #64748B;">Coba sesuaikan kata kunci pencarian atau filter status Anda.</div>
+    </div>
+@endif
 @endsection
+
+@push('styles')
+<style>
+.procurement-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.procurement-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-left: 4px solid #0D9488;
+    border-radius: 8px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    user-select: none;
+}
+
+.procurement-card:hover {
+    border-color: #CBD5E1;
+    border-left-color: #0F766E;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+.procurement-card[data-status="draft"] {
+    border-left-color: #94A3B8;
+}
+
+.procurement-card[data-status="active"] {
+    border-left-color: #0D9488;
+}
+
+.procurement-card[data-status="completed"] {
+    border-left-color: #16A34A;
+}
+
+.procurement-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.procurement-card-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.procurement-card-code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: #0D9488;
+    letter-spacing: 0.3px;
+}
+
+.proc-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.pill-blue {
+    background-color: #F0FDFA;
+    color: #0F766E;
+}
+
+.pill-green {
+    background-color: #F0FDF4;
+    color: #15803D;
+}
+
+.pill-purple {
+    background-color: #F5F3FF;
+    color: #6D28D9;
+}
+
+.pill-gray {
+    background-color: #F1F5F9;
+    color: #475569;
+}
+
+.pill-teal {
+    background-color: #F0FDFA;
+    color: #0F766E;
+}
+
+.procurement-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.card-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: #94A3B8;
+}
+
+.card-action-btn.action-edit:hover {
+    background: #F1F5F9;
+    color: #0D9488;
+    border-color: #E2E8F0;
+}
+
+.card-action-btn.action-delete:hover {
+    background: #FEF2F2;
+    color: #DC2626;
+    border-color: #FECACA;
+}
+
+.procurement-card-body {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.45;
+}
+
+.procurement-main-title {
+    font-weight: 600;
+    color: #0F172A;
+    font-size: 13.5px;
+}
+
+.procurement-main-desc {
+    color: #64748B;
+    font-size: 13px;
+}
+
+.procurement-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    color: #64748B;
+    margin-top: 2px;
+}
+
+.btn-create-procurement {
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background-color: #0D9488;
+    color: #FFFFFF !important;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 0 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    box-sizing: border-box;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.15s ease-in-out;
+    border: none;
+    flex-shrink: 0;
+}
+
+.btn-create-procurement:hover {
+    background-color: #0F766E;
+    transform: translateY(-0.5px);
+    box-shadow: 0 3px 8px rgba(13, 148, 136, 0.25);
+}
+
+.btn-create-procurement:active {
+    transform: scale(0.98);
+}
+
+.search-input-wrap .search-input {
+    height: 36px;
+    box-sizing: border-box;
+    border-radius: 6px;
+}
+
+.meta-dot {
+    color: #CBD5E1;
+}
+</style>
+@endpush
 
 @push('scripts')
 <script>
-let currentStatus = 'all';
-
 function filterTable() {
     const searchVal = document.getElementById('procurement-search').value.toLowerCase().trim();
     const clearBtn = document.getElementById('search-clear');
     clearBtn.style.display = searchVal ? 'block' : 'none';
 
-    const rows = document.querySelectorAll('.procurement-row');
-    rows.forEach(row => {
-        const text = row.getAttribute('data-name');
-        const status = row.getAttribute('data-status');
-        const matchesSearch = text.includes(searchVal);
-        const matchesStatus = (currentStatus === 'all' || status === currentStatus);
+    const cards = document.querySelectorAll('.procurement-card');
+    let visibleCount = 0;
 
-        if (matchesSearch && matchesStatus) {
-            row.style.display = '';
+    cards.forEach(card => {
+        const text = card.getAttribute('data-name');
+        const matchesSearch = text.includes(searchVal);
+
+        if (matchesSearch) {
+            card.style.display = 'flex';
+            visibleCount++;
         } else {
-            row.style.display = 'none';
+            card.style.display = 'none';
         }
     });
+
+    const noResults = document.getElementById('no-search-results');
+    if (noResults) {
+        noResults.style.display = (visibleCount === 0 && cards.length > 0) ? 'block' : 'none';
+    }
 }
 
 function clearSearch() {
     document.getElementById('procurement-search').value = '';
-    filterTable();
-}
-
-function setFilterStatus(status, btn) {
-    currentStatus = status;
-    document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
-    btn.classList.add('active');
     filterTable();
 }
 

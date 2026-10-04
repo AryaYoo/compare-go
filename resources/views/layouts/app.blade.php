@@ -22,13 +22,15 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
 
-        <a href="{{ route('procurements.index') }}" class="mobile-brand">
-            <div class="brand-icon-box" style="width:24px;height:24px;font-size:11px;">CG</div>
+        <a href="{{ route('home') }}" class="mobile-brand">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
             <span>Compare-Go</span>
         </a>
 
-        <div class="user-avatar" style="width:28px;height:28px;font-size:11px;" title="User">
-            U
+        <div class="user-avatar" style="width:28px;height:28px;font-size:11px;background:#0D9488;color:#FFFFFF;border:none;" title="{{ auth()->user()->name ?? 'User' }}">
+            {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
         </div>
     </header>
 
@@ -38,10 +40,12 @@
     {{-- Sidebar --}}
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <div class="brand-logo">
-                <div class="brand-icon-box">CG</div>
+            <a href="{{ route('home') }}" class="brand-logo" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:8px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
                 <span class="brand-text">Compare-Go</span>
-            </div>
+            </a>
             <button id="sidebar-toggle" class="sidebar-toggle-btn desktop-only" title="Toggle Sidebar">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
@@ -51,8 +55,19 @@
         </div>
 
         <nav class="sidebar-nav">
-            <div class="sidebar-section-label">Menu Utama</div>
+            {{-- Home Menu --}}
+            <a href="{{ route('home') }}"
+               class="nav-item {{ request()->routeIs('home') ? 'active' : '' }}" title="Home">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Home</span>
+            </a>
 
+            {{-- Pengadaan Barang Menu --}}
             <a href="{{ route('procurements.index') }}"
                class="nav-item {{ request()->routeIs('procurements.*') ? 'active' : '' }}" title="Pengadaan Barang">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -73,27 +88,33 @@
         {{-- Sidebar User Info --}}
         <div class="sidebar-user">
             <div class="user-info">
-                <div class="user-avatar">U</div>
+                <div class="user-avatar" style="background:#0D9488;color:#FFFFFF;border:none;" title="{{ auth()->user()->name ?? 'User' }}">
+                    {{ strtoupper(substr(auth()->user()->name ?? (auth()->user()->username ?? 'U'), 0, 1)) }}
+                </div>
                 <div class="user-details">
-                    <div class="user-name">Tim Pengadaan</div>
-                    <div class="user-meta">Evaluator & AI Analisis</div>
+                    <div class="user-name">{{ auth()->user()->name ?? (auth()->user()->username ?? 'Staff IT') }}</div>
+                    <div class="user-meta">
+                        @if(auth()->user()->username === 'it')
+                            IT Support &bull; Staff
+                        @elseif(auth()->user()->username === 'admin')
+                            Admin Operasional
+                        @else
+                            {{ auth()->user()->email }}
+                        @endif
+                    </div>
                 </div>
             </div>
+            <form action="{{ route('logout') }}" method="POST" style="margin-top: 10px;">
+                @csrf
+                <button type="submit" class="logout-btn" title="Logout">
+                    <span>Logout</span>
+                </button>
+            </form>
         </div>
     </aside>
 
     {{-- Main Content --}}
     <main class="main-content">
-        {{-- Sticky Topbar --}}
-        <header class="topbar">
-            <div class="page-title-crumb">
-                <span style="color:var(--muted);font-weight:400;">Aplikasi</span>
-                <span style="color:var(--muted);">/</span>
-                <span>@yield('title', 'Compare-Go')</span>
-            </div>
-            <div class="topbar-date" id="topbar-date"></div>
-        </header>
-
         <div class="content-area">
             @yield('content')
         </div>
@@ -147,12 +168,11 @@ Swal.fire({
 @stack('scripts')
 
 <script>
-    // Live Sidebar & Topbar Clock
+    // Live Sidebar Clock
     function updateSidebarClock() {
         const now = new Date();
         const timeEl = document.getElementById('sidebar-live-time');
         const dateEl = document.getElementById('sidebar-live-date');
-        const topbarDateEl = document.getElementById('topbar-date');
         
         if (timeEl) {
             const h = String(now.getHours()).padStart(2, '0');
@@ -166,9 +186,6 @@ Swal.fire({
         
         if (dateEl) {
             dateEl.textContent = dateFormatted;
-        }
-        if (topbarDateEl) {
-            topbarDateEl.textContent = dateFormatted;
         }
     }
     updateSidebarClock();

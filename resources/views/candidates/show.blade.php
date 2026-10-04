@@ -13,29 +13,34 @@
     $cs = $statusMap[$candidate->ai_status] ?? $statusMap['pending'];
 @endphp
 
-<div class="page-header">
-    <div style="display: flex; align-items: center; gap: 12px;">
-        <a href="{{ route('procurements.show', $procurement) }}" class="btn btn-ghost btn-sm" style="padding: 6px; color: var(--muted);" title="Kembali ke Pengadaan">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+{{-- Page Header --}}
+<div class="page-header" style="align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="{{ route('procurements.show', $procurement) }}" class="btn-back" title="Kembali ke Detail Pengadaan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
         </a>
         <div>
-            <div style="font-size: 11.5px; color: var(--muted); margin-bottom: 2px;">
-                Pengadaan &rsaquo; {{ Str::limit($procurement->name, 40) }} &rsaquo; Kandidat
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <h1 class="page-title">{{ $candidate->name }}</h1>
+                <span class="badge {{ $cs['class'] }}">
+                    {{ $cs['label'] }}
+                </span>
             </div>
-            <h1 class="page-title">{{ $candidate->name }}</h1>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">
+                {{ $procurement->name }} · {{ count($candidate->images ?? []) }} gambar screenshot · Ditambahkan {{ $candidate->created_at->format('d M Y') }}
+            </div>
         </div>
     </div>
     <div class="page-actions">
-        <span class="badge {{ $cs['class'] }}">
-            {{ $cs['label'] }}
-        </span>
         @if($candidate->ai_status === 'failed')
             <button class="btn btn-primary btn-sm" id="btn-reanalyze"
                     data-url="{{ route('procurements.candidates.reanalyze', [$procurement, $candidate]) }}">
                 ↺ Ulangi Analisis AI
             </button>
         @endif
-        <a href="{{ route('procurements.show', $procurement) }}" class="btn btn-secondary btn-sm">← Kembali</a>
     </div>
 </div>
 
