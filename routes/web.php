@@ -5,6 +5,7 @@ use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CriteriaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProcurementController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 // Guest Auth Routes
@@ -46,5 +47,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{candidate}',      [CandidateController::class, 'destroy'])->name('destroy');
         Route::get('/{candidate}/status',  [CandidateController::class, 'status'])->name('status');
         Route::post('/{candidate}/reanalyze', [CandidateController::class, 'reanalyze'])->name('reanalyze');
+    });
+
+    // Admin Settings
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/',                [SettingController::class, 'index'])->name('index');
+        Route::post('/toggle-demo',    [SettingController::class, 'toggleDemoAccounts'])->name('toggleDemo');
+        Route::post('/reset-ai-usage', [SettingController::class, 'resetAiUsage'])->name('resetAiUsage');
     });
 });

@@ -99,6 +99,27 @@ class GeminiVisionService
                 $data = $response->json();
                 $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
+                // Track API usage metrics
+                try {
+                    $todayStr = now()->toDateString();
+                    $storedDate = \App\Models\Setting::get('gemini_usage_date', $todayStr);
+                    if ($storedDate !== $todayStr) {
+                        \App\Models\Setting::set('gemini_requests_today', 0);
+                        \App\Models\Setting::set('gemini_tokens_today', 0);
+                        \App\Models\Setting::set('gemini_usage_date', $todayStr);
+                    }
+                    $reqCount = (int) \App\Models\Setting::get('gemini_requests_today', 0) + 1;
+                    \App\Models\Setting::set('gemini_requests_today', $reqCount);
+
+                    $tokensUsed = (int) ($data['usageMetadata']['totalTokenCount'] ?? 0);
+                    if ($tokensUsed > 0) {
+                        $totTokens = (int) \App\Models\Setting::get('gemini_tokens_today', 0) + $tokensUsed;
+                        \App\Models\Setting::set('gemini_tokens_today', $totTokens);
+                    }
+                } catch (\Throwable) {
+                    // Non-blocking
+                }
+
                 return $this->parseResponse($text);
 
             } catch (\RuntimeException $re) {

@@ -281,27 +281,29 @@
             </button>
         </form>
 
-        {{-- Quick fill shortcuts for convenience --}}
-        <div class="demo-credentials-box" style="flex-direction: column; align-items: stretch; gap: 10px;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div>
-                    <strong style="color:#1E293B;">Login Admin:</strong><br>
-                    <span><code>admin@hsitoperasional.com</code> &bull; Pass: <code>admin</code></span>
+        @if(\App\Models\Setting::get('show_demo_accounts', true))
+            {{-- Quick fill shortcuts for convenience --}}
+            <div class="demo-credentials-box" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <strong style="color:#1E293B;">Login Admin:</strong><br>
+                        <span><code>admin@hsitoperasional.com</code> &bull; Pass: <code>admin</code></span>
+                    </div>
+                    <button type="button" class="demo-badge-btn" onclick="fillAdmin()">
+                        Gunakan
+                    </button>
                 </div>
-                <button type="button" class="demo-badge-btn" onclick="fillAdmin()">
-                    Gunakan
-                </button>
-            </div>
-            <div style="border-top: 1px dashed #E2E8F0; padding-top: 8px; display: flex; align-items: center; justify-content: space-between;">
-                <div>
-                    <strong style="color:#1E293B;">Login User:</strong><br>
-                    <span>Username: <code>it</code> &bull; Pass: <code>it</code></span>
+                <div style="border-top: 1px dashed #E2E8F0; padding-top: 8px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <strong style="color:#1E293B;">Login User:</strong><br>
+                        <span>Username: <code>it</code> &bull; Pass: <code>it</code></span>
+                    </div>
+                    <button type="button" class="demo-badge-btn" onclick="fillUser()">
+                        Gunakan
+                    </button>
                 </div>
-                <button type="button" class="demo-badge-btn" onclick="fillUser()">
-                    Gunakan
-                </button>
             </div>
-        </div>
+        @endif
 
     </div>
 </div>
